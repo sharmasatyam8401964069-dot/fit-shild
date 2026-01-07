@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CheckCircle2, Flame, Trophy } from 'lucide-react';
-import { Dish } from '../types';
+import { Dish } from '../types.ts';
 
 interface FoodItemProps {
   dish: Dish;

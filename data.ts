@@ -1,5 +1,5 @@
 
-import { Dish } from './types';
+import { Dish } from './types.ts';
 
 export const DISHES: Dish[] = [
   {

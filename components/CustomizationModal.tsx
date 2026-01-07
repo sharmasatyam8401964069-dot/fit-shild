@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { X, Star, ChevronDown } from 'lucide-react';
-import { Dish } from '../types';
+import { Dish } from '../types.ts';
 
 interface CustomizationModalProps {
   dish: Dish | null;

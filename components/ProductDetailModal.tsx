@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Download } from 'lucide-react';
-import { Dish } from '../types';
+import { Dish } from '../types.ts';
 
 interface ProductDetailModalProps {
   dish: Dish | null;

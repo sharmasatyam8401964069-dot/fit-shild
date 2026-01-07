@@ -13,8 +13,9 @@
         background-color: #0c0c0c;
         color: #ffffff;
         -webkit-tap-highlight-color: transparent;
+        margin: 0;
+        padding: 0;
       }
-      /* Custom scrollbar for horizontal filters */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -24,19 +25,19 @@
       }
     </style>
     <script>
-      // Shim process.env to prevent crashes in environments where it is not pre-defined
-      window.process = window.process || { env: { API_KEY: '' } };
+      // Immediate shim for process.env
+      window.process = { env: { API_KEY: '' } };
     </script>
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom": "https://esm.sh/react-dom@^19.2.3",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.460.0?external=react",
+    "@google/genai": "https://esm.sh/@google/genai@1.34.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Minus, Plus, ChevronRight } from 'lucide-react';
-import { CartItem } from '../types';
+import { CartItem } from '../types.ts';
 
 interface CartModalProps {
   isOpen: boolean;
