@@ -13,9 +13,11 @@ import CustomizationModal from './components/CustomizationModal';
 import CartModal from './components/CartModal';
 import MenuModal from './components/MenuModal';
 import HungerLevelModal from './components/HungerLevelModal';
+import LoadingScreen from './components/LoadingScreen';
 
 const App: React.FC = () => {
   const [hungerLevel, setHungerLevel] = useState<string | null>(null);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isVegOnly, setIsVegOnly] = useState(true);
   const [activeFilter, setActiveFilter] = useState('High Protein');
@@ -88,8 +90,17 @@ const App: React.FC = () => {
     setIsCustomizationOpen(true);
   };
 
+  const handleHungerSelect = (level: string) => {
+    setHungerLevel(level);
+    setIsPreparing(true);
+  };
+
   if (!hungerLevel) {
-    return <HungerLevelModal onSelect={setHungerLevel} />;
+    return <HungerLevelModal onSelect={handleHungerSelect} />;
+  }
+
+  if (isPreparing) {
+    return <LoadingScreen onComplete={() => setIsPreparing(false)} />;
   }
 
   return (
