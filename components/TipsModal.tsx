@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { ChevronLeft, Leaf } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 interface TipsModalProps {
   isOpen: boolean;
@@ -54,42 +53,53 @@ const TipsModal: React.FC<TipsModalProps> = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-[160] bg-black flex flex-col animate-in fade-in duration-300 overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0e2a0e]/30 to-black pointer-events-none" />
-      
+    <div className="fixed inset-0 z-[200] bg-black flex flex-col animate-in fade-in duration-300 overflow-hidden">
+      {/* Background Side Glows */}
+      <div className="absolute top-[20%] -right-20 w-40 h-80 bg-green-500/10 blur-[80px] pointer-events-none" />
+      <div className="absolute top-[50%] -left-20 w-40 h-80 bg-green-500/10 blur-[80px] pointer-events-none" />
+
       {/* Header */}
-      <header className="relative flex items-center justify-center py-6 px-4 z-10">
-        <button onClick={onClose} className="absolute left-6 text-white hover:opacity-70 transition-opacity">
-          <ChevronLeft size={28} />
+      <header className="relative flex items-center justify-center pt-14 pb-4 px-6 z-10">
+        <button 
+          onClick={onClose} 
+          className="absolute left-6 p-1 text-white active:scale-90 transition-transform"
+        >
+          <ChevronLeft size={32} strokeWidth={2.5} />
         </button>
-        <h1 className="text-[20px] font-bold text-white tracking-wide">Tips</h1>
+        <h1 className="text-[19px] font-bold text-white tracking-tight">Tips</h1>
       </header>
 
-      <main className="flex-1 px-6 pt-10 relative z-10 overflow-y-auto no-scrollbar">
-        {/* Section Title */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center">
-             <Leaf size={18} className="text-zinc-400" />
+      <main className="flex-1 px-5 pt-12 overflow-y-auto no-scrollbar relative z-10">
+        {/* Functional Benefits Header */}
+        <div className="flex items-center gap-3 mb-10 pl-1">
+          <div className="shrink-0 text-zinc-400">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22C12 22 12 16 17 11C22 6 22 2 22 2C22 2 18 2 13 7C8 12 2 12 2 12" />
+              <path d="M12 22C12 22 12 13 15 9" />
+              <path d="M12 22L7 17" />
+            </svg>
           </div>
-          <h2 className="text-[22px] font-bold text-white">Functional Benefits</h2>
+          <h2 className="text-[24px] font-semibold text-white tracking-tight">Functional Benefits</h2>
         </div>
 
         {/* Benefits Card */}
-        <div className="w-full bg-[#32d74b] rounded-[32px] overflow-hidden shadow-2xl shadow-green-900/10">
+        <div className="w-full bg-[#27D344] rounded-[36px] overflow-hidden shadow-[0_20px_50px_rgba(39,211,68,0.25)] mb-20">
           <div className="flex flex-col">
             {benefits.map((benefit, index) => (
               <React.Fragment key={benefit.id}>
-                <div className="flex items-start gap-6 px-8 py-8">
-                  <span className="text-[28px] font-bold text-white/40 leading-none mt-1">
+                <div className="flex items-start px-7 py-7 gap-5">
+                  {/* Large Translucent Number */}
+                  <span className="text-[36px] font-bold text-white/40 leading-none shrink-0 w-8 flex justify-center pt-0.5">
                     {benefit.id}
                   </span>
-                  <p className="text-[17px] text-white/90 leading-snug font-medium">
+                  {/* Text Description */}
+                  <p className="text-[16.5px] text-white leading-[1.35] font-normal pt-1 pr-1">
                     {benefit.text}
                   </p>
                 </div>
+                {/* Custom Dashed Line */}
                 {index < benefits.length - 1 && (
-                  <div className="mx-8 border-t-[1.5px] border-white/20 border-dashed" />
+                  <div className="mx-7 h-[1px] border-t border-white/20 border-dashed" />
                 )}
               </React.Fragment>
             ))}
@@ -97,9 +107,9 @@ const TipsModal: React.FC<TipsModalProps> = ({ isOpen, onClose }) => {
         </div>
       </main>
 
-      {/* Home Indicator */}
-      <div className="flex justify-center pb-3 pt-6">
-        <div className="w-36 h-1.5 bg-white rounded-full opacity-40" />
+      {/* Bottom Home Indicator */}
+      <div className="flex justify-center pb-4 pt-4">
+        <div className="w-36 h-1.5 bg-white rounded-full opacity-30" />
       </div>
     </div>
   );

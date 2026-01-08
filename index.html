@@ -3,19 +3,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Boketto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+      }
+
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #0c0c0c;
+        background-color: #000000;
         color: #ffffff;
         -webkit-tap-highlight-color: transparent;
         margin: 0;
         padding: 0;
+        overflow-x: hidden;
+        /* Prevent bounce on mobile but allow internal scrolling */
+        overscroll-behavior-y: none;
+        user-select: none;
       }
+
+      /* Allow scrolling in containers specifically */
+      .scroll-container {
+        overscroll-behavior-y: auto;
+      }
+
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -38,6 +55,12 @@
 
       .animate-dropdown {
         animation: dropdownShow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+
+      /* Ensure modals cover the full dynamic viewport */
+      .full-viewport {
+        height: 100vh;
+        height: 100dvh;
       }
     </style>
     <script>

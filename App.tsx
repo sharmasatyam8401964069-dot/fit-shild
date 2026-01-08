@@ -47,8 +47,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Check if we need to show initial modals. 
-    // For now, let's assume login flow is handled and we start at home for demo.
-    // If you want to force login, set hungerLevel to null.
     setHungerLevel('Medium'); 
   }, []);
 
@@ -110,7 +108,7 @@ const App: React.FC = () => {
 
   if (!hungerLevel) {
     return (
-      <div className="fixed inset-0 bg-[#0c0c0c] flex justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#0c0c0c] flex justify-center">
         <div className="w-full max-w-md h-full relative">
           <HungerLevelModal onSelect={(level) => {
             setHungerLevel(level);
@@ -123,7 +121,7 @@ const App: React.FC = () => {
 
   if (isPreparing) {
     return (
-      <div className="fixed inset-0 bg-black flex justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-black flex justify-center">
         <div className="w-full max-w-md h-full relative">
           <LoadingScreen onComplete={() => setIsPreparing(false)} />
         </div>
@@ -132,19 +130,22 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex justify-center bg-black min-h-screen">
-      <div className="w-full max-w-md min-h-screen bg-[#0c0c0c] text-white pb-32 animate-in fade-in duration-700 overflow-x-hidden relative">
-        <header className="p-4 pt-6 flex justify-between items-center sticky top-0 bg-[#0c0c0c]/90 backdrop-blur-lg z-40">
+    <div className="flex justify-center bg-black min-h-screen scroll-container">
+      <div className="w-full max-w-md min-h-screen bg-[#0c0c0c] text-white pb-48 animate-in fade-in duration-700 overflow-x-hidden relative">
+        <header 
+          className="p-4 flex justify-between items-center sticky top-0 bg-[#0c0c0c]/90 backdrop-blur-lg z-40"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 24px) + 8px)' }}
+        >
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight">Boketto</h1>
             <CheckCircle2 size={22} className="text-[#9EF07F] fill-[#9EF07F]/20" />
           </div>
-          <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center border border-zinc-700 shadow-lg">
+          <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center border border-zinc-700 shadow-lg active:scale-95 transition-transform">
             <span className="text-base font-bold text-zinc-300">K</span>
           </div>
         </header>
 
-        <div className="px-4 flex gap-4 items-center mb-6">
+        <div className="px-4 flex gap-4 items-center mb-6 mt-2">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
             <input
