@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, ChevronDown, ListFilter, CheckCircle2 } from 'lucide-react';
 import { DISHES } from './data';
 import { CartItem, Dish } from './types';
@@ -14,6 +14,12 @@ import CartModal from './components/CartModal';
 import MenuModal from './components/MenuModal';
 import HungerLevelModal from './components/HungerLevelModal';
 import LoadingScreen from './components/LoadingScreen';
+import SortDropdown, { SortOrder } from './components/SortDropdown';
+import OrderSummaryModal from './components/OrderSummaryModal';
+import OrderConfirmationModal from './components/OrderConfirmationModal';
+import TipsModal from './components/TipsModal';
+import ConfirmOrderModal from './components/ConfirmOrderModal';
+import FitshieldModal from './components/FitshieldModal';
 
 const App: React.FC = () => {
   const [hungerLevel, setHungerLevel] = useState<string | null>(null);
@@ -29,6 +35,16 @@ const App: React.FC = () => {
   const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOrderSummaryOpen, setIsOrderSummaryOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [isTipsOpen, setIsTipsOpen] = useState(false);
+  const [isConfirmOrderOpen, setIsConfirmOrderOpen] = useState(false);
+  const [isFitshieldOpen, setIsFitshieldOpen] = useState(false);
+
+  // Sorting state
+  const [sortOrder, setSortOrder] = useState<SortOrder>(null);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (DISHES.length >= 2) {
@@ -40,7 +56,7 @@ const App: React.FC = () => {
   }, []);
 
   const filteredDishes = useMemo(() => {
-    return DISHES.filter(dish => {
+    let result = DISHES.filter(dish => {
       const matchesSearch = dish.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesVeg = isVegOnly ? dish.isVeg : true;
       const matchesFilter = activeFilter === 'All' || 
@@ -50,7 +66,15 @@ const App: React.FC = () => {
                            (activeFilter === 'Gluten Free' && dish.tags.includes('Gluten Free'));
       return matchesSearch && matchesVeg && matchesFilter;
     });
-  }, [searchQuery, isVegOnly, activeFilter]);
+
+    if (sortOrder === 'lowToHigh') {
+      result = [...result].sort((a, b) => a.price - b.price);
+    } else if (sortOrder === 'highToLow') {
+      result = [...result].sort((a, b) => b.price - a.price);
+    }
+
+    return result;
+  }, [searchQuery, isVegOnly, activeFilter, sortOrder]);
 
   const handleAddToCart = (dish: Dish) => {
     setCart(prev => {
@@ -74,6 +98,21 @@ const App: React.FC = () => {
     });
   };
 
+  const resetToMenu = () => {
+    setCart([]);
+    setIsConfirmationOpen(false);
+    setIsConfirmOrderOpen(false);
+    setIsTipsOpen(false);
+    setIsOrderSummaryOpen(false);
+    setIsCartOpen(false);
+    setActiveFilter('All');
+  };
+
+  const handleConfirmYes = () => {
+    setIsConfirmOrderOpen(false);
+    setIsTipsOpen(true);
+  };
+
   const openDishDetail = (dish: Dish) => {
     setSelectedDish(dish);
     setIsDetailOpen(true);
@@ -87,6 +126,18 @@ const App: React.FC = () => {
   const handleHungerSelect = (level: string) => {
     setHungerLevel(level);
     setIsPreparing(true);
+  };
+
+  // Hover handlers for sort dropdown
+  const handleSortMouseEnter = () => {
+    if (sortTimeoutRef.current) clearTimeout(sortTimeoutRef.current);
+    setIsSortOpen(true);
+  };
+
+  const handleSortMouseLeave = () => {
+    sortTimeoutRef.current = window.setTimeout(() => {
+      setIsSortOpen(false);
+    }, 300); // Small delay to allow moving mouse to the dropdown
   };
 
   if (!hungerLevel) {
@@ -145,7 +196,7 @@ const App: React.FC = () => {
         </div>
 
         <div className="px-4 mb-6">
-          <GoalCard onTap={() => setIsRecommendationOpen(true)} />
+          <GoalCard onTap={() => setIsFitshieldOpen(true)} />
         </div>
 
         <div className="mb-6">
@@ -160,9 +211,27 @@ const App: React.FC = () => {
               Sorted by highest {activeFilter.toLowerCase()}
             </div>
           </div>
-          <div className="flex gap-4">
-            <ListFilter size={20} className="text-zinc-400" />
+          <div 
+            className="flex gap-4 relative"
+            onMouseEnter={handleSortMouseEnter}
+            onMouseLeave={handleSortMouseLeave}
+          >
+            <button 
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className={`transition-colors ${isSortOpen ? 'text-green-500' : 'text-zinc-400 hover:text-white'}`}
+            >
+              <ListFilter size={20} />
+            </button>
             <ChevronDown size={20} className="text-zinc-400" />
+            
+            <SortDropdown 
+              isOpen={isSortOpen}
+              onClose={() => setIsSortOpen(false)}
+              currentSort={sortOrder}
+              onSortChange={setSortOrder}
+              onMouseEnter={handleSortMouseEnter}
+              onMouseLeave={handleSortMouseLeave}
+            />
           </div>
         </div>
 
@@ -202,6 +271,38 @@ const App: React.FC = () => {
           onClose={() => setIsCartOpen(false)}
           items={cart}
           onUpdateQuantity={updateCartQuantity}
+          onContinue={() => {
+            setIsCartOpen(false);
+            setIsOrderSummaryOpen(true);
+          }}
+        />
+        <OrderSummaryModal
+          isOpen={isOrderSummaryOpen}
+          onClose={() => setIsOrderSummaryOpen(false)}
+          onSummery={() => {
+            setIsOrderSummaryOpen(false);
+            setIsConfirmationOpen(true);
+          }}
+          items={cart}
+        />
+        <OrderConfirmationModal
+          isOpen={isConfirmationOpen}
+          onClose={() => setIsConfirmationOpen(false)}
+          onTipsClick={() => setIsConfirmOrderOpen(true)}
+          items={cart}
+        />
+        <ConfirmOrderModal
+          isOpen={isConfirmOrderOpen}
+          onClose={() => setIsConfirmOrderOpen(false)}
+          onConfirm={handleConfirmYes}
+        />
+        <TipsModal
+          isOpen={isTipsOpen}
+          onClose={() => setIsTipsOpen(false)}
+        />
+        <FitshieldModal
+          isOpen={isFitshieldOpen}
+          onClose={() => setIsFitshieldOpen(false)}
         />
         <MenuModal 
           isOpen={isMenuOpen}
