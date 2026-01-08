@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Download } from 'lucide-react';
+import { Download, ChevronLeft } from 'lucide-react';
 import { Dish } from '../types.ts';
 
 interface ProductDetailModalProps {
@@ -18,8 +17,18 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ dish, isOpen, o
         className="bg-[#121212] w-full max-w-md h-[92vh] rounded-t-[40px] overflow-y-auto no-scrollbar border-t border-zinc-800 animate-in slide-in-from-bottom duration-500"
       >
         {/* Pull Indicator */}
-        <div className="w-full flex justify-center pt-4 pb-2 sticky top-0 bg-[#121212] z-10" onClick={onClose}>
+        <div className="w-full flex justify-center pt-4 pb-1 sticky top-0 bg-[#121212] z-20" onClick={onClose}>
           <div className="w-12 h-1 bg-zinc-700 rounded-full" />
+        </div>
+
+        {/* Header with Back Button */}
+        <div className="flex items-center px-6 py-2 sticky top-6 bg-[#121212] z-10">
+          <button 
+            onClick={onClose} 
+            className="p-2 bg-zinc-900/50 rounded-full mr-4 hover:bg-zinc-800 transition-colors active:scale-90"
+          >
+            <ChevronLeft size={24} className="text-white" />
+          </button>
         </div>
 
         <div className="px-6 pb-24">
