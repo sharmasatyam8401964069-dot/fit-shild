@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,14 +22,20 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-        /* Prevent bounce on mobile but allow internal scrolling */
         overscroll-behavior-y: none;
         user-select: none;
+        display: flex;
+        justify-content: center;
       }
 
-      /* Allow scrolling in containers specifically */
-      .scroll-container {
-        overscroll-behavior-y: auto;
+      #root {
+        width: 100%;
+        max-width: 440px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background-color: #0c0c0c;
+        position: relative;
+        overflow-x: hidden;
       }
 
       .no-scrollbar::-webkit-scrollbar {
@@ -41,7 +46,6 @@
         scrollbar-width: none;
       }
 
-      /* Smooth Entrance Animation */
       @keyframes dropdownShow {
         from {
           opacity: 0;
@@ -57,14 +61,12 @@
         animation: dropdownShow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
       }
 
-      /* Ensure modals cover the full dynamic viewport */
       .full-viewport {
         height: 100vh;
         height: 100dvh;
       }
     </style>
     <script>
-      // Immediate shim for process.env
       window.process = { env: { API_KEY: '' } };
     </script>
     <script type="importmap">
