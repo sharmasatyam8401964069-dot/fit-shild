@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronLeft, ChevronUp, Plus, Minus, Play } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronUp, ChevronDown, Plus, Minus } from 'lucide-react';
 import { CartItem, Dish } from '../types.ts';
 import GoalCard from './GoalCard';
 
@@ -7,16 +7,27 @@ interface OrderSummaryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSummery?: () => void;
+  onUpdateQuantity?: (id: string, delta: number) => void;
+  onAddItem?: (dish: Dish) => void;
   items: CartItem[];
 }
 
-const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ isOpen, onClose, onSummery, items }) => {
+const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSummery, 
+  onUpdateQuantity, 
+  onAddItem,
+  items 
+}) => {
+  const [isItemsExpanded, setIsItemsExpanded] = useState(true);
+
   if (!isOpen) return null;
 
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Mock recommendations as seen in the screenshot
-  const recommendations = [
+  // Mock recommendations structured as real Dish objects
+  const recommendations: Dish[] = [
     {
       id: 'r1',
       name: 'Veg Puff (Half)',
@@ -25,6 +36,9 @@ const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ isOpen, onClose, 
       protein: 24,
       carb: 24,
       fat: 24,
+      fiber: 2,
+      isVeg: true,
+      tags: ['Light Snack'],
       image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&q=80&w=400'
     },
     {
@@ -35,6 +49,9 @@ const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ isOpen, onClose, 
       protein: 24,
       carb: 24,
       fat: 24,
+      fiber: 2,
+      isVeg: true,
+      tags: ['Light Snack'],
       image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&q=80&w=400'
     }
   ];
@@ -56,62 +73,71 @@ const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ isOpen, onClose, 
         </div>
 
         {/* Order Items Section */}
-        <div className="bg-[#141414] border border-zinc-800 rounded-[28px] p-6 mb-10">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-[20px] font-medium text-white">Your Order item ({totalItems})</h2>
-            <ChevronUp size={24} className="text-white" />
-          </div>
+        <div className="bg-[#141414] border border-zinc-800 rounded-[28px] p-6 mb-10 transition-all duration-300">
+          <button 
+            onClick={() => setIsItemsExpanded(!isItemsExpanded)}
+            className="w-full flex justify-between items-center mb-0 active:opacity-70 transition-opacity"
+          >
+            <h2 className="text-[20px] font-medium text-white">Your Order item ({totalItemsCount})</h2>
+            {isItemsExpanded ? <ChevronUp size={24} className="text-white" /> : <ChevronDown size={24} className="text-white" />}
+          </button>
 
-          <div className="space-y-10">
-            {/* Hardcoded items to match design structure, mapping would use real data */}
-            <div className="flex justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <div className="w-4 h-4 rounded-sm border-[1.5px] border-green-600 flex items-center justify-center bg-transparent">
-                    <div className="w-1.5 h-1.5 bg-green-600 rounded-full" />
+          {isItemsExpanded && (
+            <div className="mt-8 space-y-10 animate-in slide-in-from-top-2 duration-300">
+              {items.length === 0 ? (
+                <div className="text-center py-6 text-zinc-500 font-medium">No items in cart</div>
+              ) : (
+                items.map((item) => (
+                  <div key={item.id} className="flex justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className={`w-4 h-4 rounded-sm border-[1.5px] flex items-center justify-center bg-transparent ${item.isVeg ? 'border-green-600' : 'border-red-600'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                        </div>
+                        <span className="text-[17px] font-medium text-white">
+                          {item.name}
+                        </span>
+                      </div>
+                      <div className="text-[17px] font-bold text-white mb-3">₹{item.price}</div>
+                      <button 
+                        className="flex items-center gap-1.5 text-[14px] font-medium text-white group active:scale-95 transition-transform"
+                      >
+                        Edit 
+                        <div className="w-2.5 h-2.5 border-t-[5px] border-t-transparent border-l-[8px] border-l-green-500 border-b-[5px] border-b-transparent ml-1" />
+                      </button>
+                    </div>
+                    <div className="flex flex-col items-end gap-5">
+                      <div className="flex items-center justify-between w-[110px] px-3 py-2.5 border border-[#9EF07F] rounded-[14px]">
+                        <button 
+                          onClick={() => onUpdateQuantity?.(item.id, -1)}
+                          className="text-white cursor-pointer active:scale-125 transition-transform"
+                        >
+                          <Minus size={18} />
+                        </button>
+                        <span className="text-[18px] font-bold text-white">{item.quantity}</span>
+                        <button 
+                          onClick={() => onUpdateQuantity?.(item.id, 1)}
+                          className="text-white cursor-pointer active:scale-125 transition-transform"
+                        >
+                          <Plus size={18} />
+                        </button>
+                      </div>
+                      <div className="text-[17px] font-bold text-white">₹{item.price * item.quantity}</div>
+                    </div>
                   </div>
-                  <span className="text-[17px] font-medium text-white">Burger With Meat <span className="text-zinc-500 font-normal">(Half)</span></span>
-                </div>
-                <div className="text-[17px] font-bold text-white mb-3">₹190</div>
-                <button className="flex items-center gap-1.5 text-[14px] font-medium text-white group">
-                  Edit 
-                  <div className="w-2.5 h-2.5 border-t-[5px] border-t-transparent border-l-[8px] border-l-green-500 border-b-[5px] border-b-transparent ml-1" />
+                ))
+              )}
+
+              <div className="flex justify-end mt-10">
+                <button 
+                  onClick={onClose}
+                  className="text-[#9EF07F] text-[18px] font-bold active:scale-95 transition-transform"
+                >
+                  +Add Item
                 </button>
               </div>
-              <div className="flex flex-col items-end gap-5">
-                <div className="flex items-center justify-between w-[110px] px-3 py-2.5 border border-[#9EF07F] rounded-[14px]">
-                  <Minus size={18} className="text-white" />
-                  <span className="text-[18px] font-bold text-white">1</span>
-                  <Plus size={18} className="text-white" />
-                </div>
-                <div className="text-[17px] font-bold text-white">₹190</div>
-              </div>
             </div>
-
-            <div className="flex justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <div className="w-4 h-4 rounded-sm border-[1.5px] border-green-600 flex items-center justify-center bg-transparent">
-                    <div className="w-1.5 h-1.5 bg-green-600 rounded-full" />
-                  </div>
-                  <span className="text-[17px] font-medium text-white">Burger With Meat</span>
-                </div>
-                <div className="text-[17px] font-bold text-white">₹160</div>
-              </div>
-              <div className="flex flex-col items-end gap-5">
-                <div className="flex items-center justify-between w-[110px] px-3 py-2.5 border border-[#9EF07F] rounded-[14px]">
-                  <Minus size={18} className="text-white" />
-                  <span className="text-[18px] font-bold text-white">1</span>
-                  <Plus size={18} className="text-white" />
-                </div>
-                <div className="text-[17px] font-bold text-white">₹160</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end mt-10">
-            <button className="text-[#9EF07F] text-[18px] font-bold">+Add Item</button>
-          </div>
+          )}
         </div>
 
         {/* Recommended Section */}
@@ -150,7 +176,10 @@ const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ isOpen, onClose, 
                   <div className="text-[14px] font-medium text-white mb-1">{rec.name}</div>
                   <div className="text-[14px] font-bold text-zinc-400">₹{rec.price}</div>
                 </div>
-                <button className="px-5 py-2 border border-[#9EF07F] rounded-xl text-[#9EF07F] font-bold text-[15px] active:bg-[#9EF07F]/10">
+                <button 
+                  onClick={() => onAddItem?.(rec)}
+                  className="px-5 py-2 border border-[#9EF07F] rounded-xl text-[#9EF07F] font-bold text-[15px] active:bg-[#9EF07F] active:text-black transition-all"
+                >
                   Add
                 </button>
               </div>
@@ -163,7 +192,12 @@ const OrderSummaryModal: React.FC<OrderSummaryModalProps> = ({ isOpen, onClose, 
       <div className="fixed bottom-0 left-0 right-0 p-5 bg-[#0c0c0c] flex flex-col items-center">
         <button 
           onClick={onSummery}
-          className="w-full bg-[#9EF07F] hover:bg-[#8ee06f] text-black font-bold py-4.5 rounded-[22px] text-[20px] transition-all active:scale-[0.98] shadow-lg shadow-green-500/5 mb-4"
+          disabled={items.length === 0}
+          className={`w-full font-bold py-4.5 rounded-[22px] text-[20px] transition-all active:scale-[0.98] shadow-lg mb-4 ${
+            items.length === 0 
+              ? 'bg-zinc-800 text-zinc-500 opacity-50 cursor-not-allowed' 
+              : 'bg-[#9EF07F] hover:bg-[#8ee06f] text-black shadow-green-500/5'
+          }`}
         >
           Summery
         </button>

@@ -15,6 +15,7 @@ import SortDropdown, { SortOrder } from './components/SortDropdown';
 import CompactGoalBar from './components/CompactGoalBar';
 import OrderSummaryModal from './components/OrderSummaryModal';
 import OrderConfirmationModal from './components/OrderConfirmationModal';
+import ConfirmOrderModal from './components/ConfirmOrderModal';
 import TipsModal from './components/TipsModal';
 import FitshieldModal from './components/FitshieldModal';
 import SetGoalModal from './components/SetGoalModal';
@@ -28,6 +29,7 @@ const App: React.FC = () => {
   const [isVegOnly, setIsVegOnly] = useState(true);
   const [activeFilter, setActiveFilter] = useState('High Protein');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -37,6 +39,7 @@ const App: React.FC = () => {
   const [isOrderSummaryOpen, setIsOrderSummaryOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isTipsOpen, setIsTipsOpen] = useState(false);
+  const [isTipsConfirmOpen, setIsTipsConfirmOpen] = useState(false);
   const [isFitshieldOpen, setIsFitshieldOpen] = useState(false);
   const [isSetGoalOpen, setIsSetGoalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -82,6 +85,35 @@ const App: React.FC = () => {
     });
   };
 
+  const handleUpdateQuantity = (id: string, delta: number) => {
+    setCart(prev => {
+      return prev.map(item => {
+        if (item.id === id) {
+          const newQty = Math.max(0, item.quantity + delta);
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      }).filter(item => item.quantity > 0);
+    });
+  };
+
+  const handleProfileButtonClick = () => {
+    if (isLoggedIn) {
+      setIsProfileOpen(true);
+    } else {
+      setIsFitshieldOpen(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setIsFitshieldOpen(false);
+    // Give a small delay for the FitshieldModal to close before opening ProfileModal
+    setTimeout(() => {
+      setIsProfileOpen(true);
+    }, 300);
+  };
+
   if (!hungerLevel) {
     return (
       <div className="w-full h-full relative">
@@ -115,7 +147,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <button 
-            onClick={() => setIsProfileOpen(true)}
+            onClick={handleProfileButtonClick}
             className="w-9 h-9 bg-zinc-800/80 rounded-full flex items-center justify-center border border-zinc-700/50 active:scale-95 transition-transform"
           >
             <span className="text-sm font-bold text-zinc-300">K</span>
@@ -163,7 +195,7 @@ const App: React.FC = () => {
          {/* Original Large Elements - Only when NOT scrolled */}
          <div className={`transition-opacity duration-300 ${isScrolled ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100 h-auto'}`}>
             <div className="px-5 mb-6">
-              <GoalCard onTap={() => setIsProfileOpen(true)} onEdit={() => setIsSetGoalOpen(true)} />
+              <GoalCard onTap={() => {}} onEdit={() => setIsSetGoalOpen(true)} />
             </div>
             <div className="mb-4">
               <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
@@ -235,12 +267,17 @@ const App: React.FC = () => {
       />
       <ProductDetailModal dish={selectedDish} isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} />
       <CustomizationModal dish={selectedDish} isOpen={isCustomizationOpen} onClose={() => setIsCustomizationOpen(false)} />
-      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cart} onUpdateQuantity={() => {}} onContinue={() => {setIsCartOpen(false); setIsOrderSummaryOpen(true)}} />
-      <OrderSummaryModal isOpen={isOrderSummaryOpen} onClose={() => setIsOrderSummaryOpen(false)} items={cart} onSummery={() => {setIsOrderSummaryOpen(false); setIsConfirmationOpen(true)}} />
-      <OrderConfirmationModal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)} items={cart} />
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} items={cart} onUpdateQuantity={handleUpdateQuantity} onContinue={() => {setIsCartOpen(false); setIsOrderSummaryOpen(true)}} />
+      <OrderSummaryModal isOpen={isOrderSummaryOpen} onClose={() => setIsOrderSummaryOpen(false)} items={cart} onUpdateQuantity={handleUpdateQuantity} onAddItem={handleAddToCart} onSummery={() => {setIsOrderSummaryOpen(false); setIsConfirmationOpen(true)}} />
+      <OrderConfirmationModal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)} onTipsClick={() => setIsTipsConfirmOpen(true)} items={cart} />
+      <ConfirmOrderModal isOpen={isTipsConfirmOpen} onClose={() => setIsTipsConfirmOpen(false)} onConfirm={() => { setIsTipsConfirmOpen(false); setIsTipsOpen(true); }} />
       <TipsModal isOpen={isTipsOpen} onClose={() => setIsTipsOpen(false)} />
       <MenuModal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} activeCategory={activeFilter} onCategorySelect={setActiveFilter} />
-      <FitshieldModal isOpen={isFitshieldOpen} onClose={() => setIsFitshieldOpen(false)} />
+      <FitshieldModal 
+        isOpen={isFitshieldOpen} 
+        onClose={() => setIsFitshieldOpen(false)} 
+        onLoginSuccess={handleLoginSuccess}
+      />
       <SetGoalModal isOpen={isSetGoalOpen} onClose={() => setIsSetGoalOpen(false)} />
     </div>
   );
