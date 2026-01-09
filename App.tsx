@@ -19,8 +19,10 @@ import OrderConfirmationModal from './components/OrderConfirmationModal';
 import TipsModal from './components/TipsModal';
 import ConfirmOrderModal from './components/ConfirmOrderModal';
 import FitshieldModal from './components/FitshieldModal';
+import SetGoalModal from './components/SetGoalModal';
 
 const App: React.FC = () => {
+  // Start with hungerLevel as null to show the onboarding modal
   const [hungerLevel, setHungerLevel] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,18 +39,15 @@ const App: React.FC = () => {
   const [isOrderSummaryOpen, setIsOrderSummaryOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isTipsOpen, setIsTipsOpen] = useState(false);
+  const [isTipsConfirmOpen, setIsTipsConfirmOpen] = useState(false);
   const [isConfirmOrderOpen, setIsConfirmOrderOpen] = useState(false);
   const [isFitshieldOpen, setIsFitshieldOpen] = useState(false);
+  const [isSetGoalOpen, setIsSetGoalOpen] = useState(false);
 
   // Sorting state
   const [sortOrder, setSortOrder] = useState<SortOrder>(null);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortTimeoutRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    // Check if we need to show initial modals. 
-    setHungerLevel('Medium'); 
-  }, []);
 
   const filteredDishes = useMemo(() => {
     let result = DISHES.filter(dish => {
@@ -106,6 +105,7 @@ const App: React.FC = () => {
     }, 300);
   };
 
+  // 1. Initial State: If hungerLevel is not set, show the onboarding modal.
   if (!hungerLevel) {
     return (
       <div className="fixed inset-0 bg-[#0c0c0c] flex justify-center">
@@ -119,6 +119,7 @@ const App: React.FC = () => {
     );
   }
 
+  // 2. Transition State: After selection, show the loading screen.
   if (isPreparing) {
     return (
       <div className="fixed inset-0 bg-black flex justify-center">
@@ -129,6 +130,7 @@ const App: React.FC = () => {
     );
   }
 
+  // 3. Main App State: After loading, show the full app.
   return (
     <div className="flex justify-center bg-black min-h-screen scroll-container">
       <div className="w-full max-w-md min-h-screen bg-[#0c0c0c] text-white pb-48 animate-in fade-in duration-700 overflow-x-hidden relative">
@@ -140,9 +142,12 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-bold tracking-tight">Boketto</h1>
             <CheckCircle2 size={22} className="text-[#9EF07F] fill-[#9EF07F]/20" />
           </div>
-          <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center border border-zinc-700 shadow-lg active:scale-95 transition-transform">
+          <button 
+            onClick={() => setIsTipsConfirmOpen(true)}
+            className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center border border-zinc-700 shadow-lg active:scale-95 transition-transform cursor-pointer"
+          >
             <span className="text-base font-bold text-zinc-300">K</span>
-          </div>
+          </button>
         </header>
 
         <div className="px-4 flex gap-4 items-center mb-6 mt-2">
@@ -168,7 +173,7 @@ const App: React.FC = () => {
         </div>
 
         <div className="px-4 mb-8">
-          <GoalCard onTap={() => setIsFitshieldOpen(true)} />
+          <GoalCard onTap={() => setIsFitshieldOpen(true)} onEdit={() => setIsSetGoalOpen(true)} />
         </div>
 
         <div className="mb-10">
@@ -239,8 +244,20 @@ const App: React.FC = () => {
         <OrderSummaryModal isOpen={isOrderSummaryOpen} onClose={() => setIsOrderSummaryOpen(false)} onSummery={() => { setIsOrderSummaryOpen(false); setIsConfirmationOpen(true); }} items={cart} />
         <OrderConfirmationModal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)} onTipsClick={() => setIsConfirmOrderOpen(true)} items={cart} />
         <ConfirmOrderModal isOpen={isConfirmOrderOpen} onClose={() => setIsConfirmOrderOpen(false)} onConfirm={() => { setIsConfirmOrderOpen(false); setIsTipsOpen(true); }} />
+        
+        {/* Tips Confirmation Modal */}
+        <ConfirmOrderModal 
+          isOpen={isTipsConfirmOpen} 
+          onClose={() => setIsTipsConfirmOpen(false)} 
+          onConfirm={() => {
+            setIsTipsConfirmOpen(false);
+            setIsTipsOpen(true);
+          }} 
+        />
+        
         <TipsModal isOpen={isTipsOpen} onClose={() => setIsTipsOpen(false)} />
         <FitshieldModal isOpen={isFitshieldOpen} onClose={() => setIsFitshieldOpen(false)} />
+        <SetGoalModal isOpen={isSetGoalOpen} onClose={() => setIsSetGoalOpen(false)} />
         <MenuModal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} activeCategory={activeFilter} onCategorySelect={setActiveFilter} />
         
         <BottomNav 

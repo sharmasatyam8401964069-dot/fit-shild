@@ -2,9 +2,10 @@ import React from 'react';
 
 interface GoalCardProps {
   onTap: () => void;
+  onEdit?: () => void;
 }
 
-const GoalCard: React.FC<GoalCardProps> = ({ onTap }) => {
+const GoalCard: React.FC<GoalCardProps> = ({ onTap, onEdit }) => {
   return (
     <div 
       onClick={onTap}
@@ -12,7 +13,15 @@ const GoalCard: React.FC<GoalCardProps> = ({ onTap }) => {
     >
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-[15px] font-medium text-zinc-300">Your Dinner Goal</h3>
-        <button className="text-[#9EF07F] text-[15px] font-bold">Edit</button>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onEdit) onEdit();
+          }}
+          className="text-[#9EF07F] text-[15px] font-bold active:opacity-70"
+        >
+          Edit
+        </button>
       </div>
 
       <div className="flex items-center gap-4">
